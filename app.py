@@ -6,7 +6,7 @@ app.secret_key = 'supersecret'
 
 @app.route("/")
 def index():
-	print("Jasper initialized")
+    print("Jasper initialized")
     return render_template("index.html")
 
 # Run app
