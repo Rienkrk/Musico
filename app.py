@@ -6,8 +6,19 @@ app.secret_key = 'supersecret'
 
 @app.route("/")
 def index():
-    print("Jasper initialized")
     return render_template("index.html")
+
+@app.route("/ArtistPage")
+def ArtistPage():
+    return render_template("ArtistPage.html")
+
+@app.route("/GenrePage")
+def GenrePage():
+    return render_template("GenrePage.html")
+
+@app.route("/SongPage")
+def SongPage():
+    return render_template("SongPage.html")
 
 # Run app
 if __name__ == "__main__":
