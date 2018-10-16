@@ -49,3 +49,13 @@ table {
 a {
   color: black;
 }
+
+a:hover {
+  color: darkgrey;
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  text-align: center;
+}

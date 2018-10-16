@@ -4,16 +4,25 @@
 <head>
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 </head>
 <body>
+    <div>
+        <div class="center">
+            <h2>Musico</h2>
+        </div>
 
-    <h5>Musico</h5>
-    
-    <div class="row">
-        <div class="col-sm-2"><a href="{{ url_for('ArtistPage') }}">Artists/Composers</a></div>
-        <div class="col-sm-2"><a href="{{ url_for('GenrePage') }}">Genres</a></div>
-        <div class="col-sm-2"><a href="{{ url_for('SongPage') }}">Songs</a></div>
+        <div class="container">
+            <div class="row">
+                <div class="center">
+                    <div class="col-lg-4"><a href="{{ url_for('ArtistPage') }}">Artists/Composers</a></div>
+                    <div class="col-lg-4"><a href="{{ url_for('GenrePage') }}">Genres</a></div>
+                    <div class="col-lg-4"><a href="{{ url_for('SongPage') }}">Songs</a></div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </body>
