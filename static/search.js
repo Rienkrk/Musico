@@ -1,42 +1,44 @@
 // Gets an input, makes an ajax call which returns a list of phones and displays those in the view.
 function myFunction(value) {
 
-    // Trim the given value.
+    $( "#results" ).empty();
+
+    if(value != "") { 
+
       value = value.trim();
   
-      // Empty the html view list.
-    //   $(".search-drop").empty();
-    //   $(".results").empty();
-  
-    // Make a ajax call with json, whom return a list of related phones.
-      $.ajax({
-        url: '/search/' + value,
-        dataType: "json",
-  
-        // When succesfull run the respone function.
-        success: function(response) {
+      // Make a ajax call with json, whom return a list of related phones.
+        $.ajax({
+          url: '/search/' + value,
+          dataType: "json",
+    
+          // When succesfull run the respone function.
+          success: function(response) {
 
-          $( "#results" ).empty();
+            console.log(response)
 
-          // console.log(response)
+            if (response.length > 0) {
 
-          for(x in response){
-            console.log(response[x])
-            
-            var html = "<li>"+response[x]['name']+"</li>"
+              for(x in response){
+                var html = "<li>"+response[x]['name']+"</li>"
+              }
+
+            } else {
+              var html = "<li>Geen resultaten gevonden</li>"
+            };
+
             $("#results").prepend(html);
-          }
-            
-            
-  
-        },
-        error: function(error) {
-          
-          $( "#results" ).empty();
-          console.log(error)
+                
+          },
+          error: function(error) {
 
-        }
-  
-    });
+            var html = "<li>Er ging iets goed mis.</li>"
+            $("#results").prepend(html);
+
+          }
+    
+      });
+
+    };
   
   };

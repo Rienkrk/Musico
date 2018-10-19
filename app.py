@@ -11,7 +11,7 @@ def index():
 
 @app.route("/artist/<artist>")
 def artist(artist):
-    return render_template("artist.html")
+    return render_template("artist.html", artist=artist)
 
 @app.route("/genre/<genre>")
 def genre(genre):
@@ -24,7 +24,6 @@ def song(song):
 @app.route("/search/<query>", methods=['GET', 'POST'])
 def search(query):
     results = []
-    # options = ['rock', 'house', 'pop', 'houdie', 'ixconxpop']
     options = [
             "2s","3s","4s","5s","6s","7s","8s","9s","10s","Js","Qs","Ks","As"
             "2h","3h","4h","5h","6h","7h","8h","9h","10h","Jh","Qh","Kh","Ah"
