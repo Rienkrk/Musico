@@ -20,14 +20,14 @@ function myFunction(value) {
             if (response.length > 0) {
 
               for(x in response){
-                var html = "<li>"+response[x]['name']+"</li>"
+                var html = "<li><a href=/"+response[x]['category']+"/" + response[x]['name'] + ">"+response[x]['name']+"</a></li>"
+                $("#results").prepend(html);
               }
 
             } else {
               var html = "<li>Geen resultaten gevonden</li>"
+              $("#results").prepend(html);
             };
-
-            $("#results").prepend(html);
                 
           },
           error: function(error) {

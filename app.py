@@ -1,5 +1,7 @@
 from flask import Flask, render_template
 import json
+from rdflib import Graph, RDF, Namespace, Literal, URIRef
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 app = Flask(__name__)
 app.debug = True
@@ -24,16 +26,27 @@ def song(song):
 @app.route("/search/<query>", methods=['GET', 'POST'])
 def search(query):
     results = []
-    options = [
-            "2s","3s","4s","5s","6s","7s","8s","9s","10s","Js","Qs","Ks","As"
-            "2h","3h","4h","5h","6h","7h","8h","9h","10h","Jh","Qh","Kh","Ah"
-            "2d","3d","4d","5d","6d","7d","8d","9d","10d","Jd","Qd","Kd","Ad"
-            "2c","3c","4c","5c","6c","7c","8c","9c","10c","Jc","Qc","Kc","Ac"
-           ]
+    options = []
+
+
+    sparql = SPARQLWrapper("http://localhost:5820/hqaecua/query")
+    sparql.setQuery("""
+        SELECT ?name
+        WHERE {
+            ?sub rdf:type mus:Composer.
+            ?sub foaf:name ?name
+        }
+    """)
+    sparql.setReturnFormat(JSON)
+    response = sparql.query().convert()
+    for result in response["results"]["bindings"]:
+        options.append(result['name']['value'].lower())
+
+    print(list(set(options)))
 
     for option in options:
         if query in option:
-            result = {'category': 'genre', 'name': option}
+            result = {'category': 'artist', 'name': option}
             results.append(result)
     return json.dumps(results)
 
