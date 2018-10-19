@@ -3,25 +3,45 @@
 
 <head>
 
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static',filename='search.js') }}"></script>
 
 </head>
 <body>
     <div>
         <div class="center">
+
             <h2>Musico</h2>
+            <h4 class="top-buffer">Vind de beste artiesten van het moment!</h4>
+
+            <div class="row top-buffer-80">
+                <div class="col-md-6 search-bar">
+                    <div id="custom-search-input">
+                        <div class="input-group col-md-12">
+                            <input class="form-control input-lg" type="text" name="fname" id="fname" onkeyup="myFunction(this.value)" placeholder="Artiest, genre of lied">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info btn-lg" type="button">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <ul id="results">
+                </ul>
+            </div>
         </div>
 
-        <div class="container">
-            <div class="row">
-                <div class="center">
-                    <div class="col-lg-4"><a href="{{ url_for('ArtistPage') }}">Artists/Composers</a></div>
-                    <div class="col-lg-4"><a href="{{ url_for('GenrePage') }}">Genres</a></div>
-                    <div class="col-lg-4"><a href="{{ url_for('SongPage') }}">Songs</a></div>
-                </div>
+        <div class="row top-buffer-80">
+            <div class="center">
+                <div class="col-lg-4"><a href="{{ url_for('artist', artist='phone') }}">Artists/Composers</a></div>
+                <div class="col-lg-4"><a href="{{ url_for('genre', genre='phone') }}">Genres</a></div>
+                <div class="col-lg-4"><a href="{{ url_for('song', song='phone') }}">Songs</a></div>
             </div>
+        </div>
         </div>
     </div>
 
