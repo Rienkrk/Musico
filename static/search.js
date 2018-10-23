@@ -20,7 +20,9 @@ function myFunction(value) {
             if (response.length > 0) {
 
               for(x in response){
-                var html = "<li><a href=/"+response[x]['category']+"/" + response[x]['name'] + ">"+response[x]['name']+"</a></li>"
+                person = response[x]['name'].split('/').join('%2F');
+                person = encodeURI(person);
+                var html = "<li><a href=/"+response[x]['category']+"/" + person + ">"+response[x]['name']+"</a></li>"
                 $("#results").prepend(html);
               }
 

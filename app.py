@@ -13,11 +13,37 @@ def index():
 
 @app.route("/artist/<artist>")
 def artist(artist):
-    return render_template("artist.html", artist=artist)
+   return render_template("artist.html", artist=artist) 
 
-@app.route("/genre/<genre>")
-def genre(genre):
-    return render_template("genre.html")
+@app.route("/album/<album>")
+def album(album):
+
+    album = album.replace("%2F", "/")
+
+    sparql = SPARQLWrapper("http://localhost:5820/musico/query")
+    sparql.setQuery(
+        """
+        SELECT ?lang ?imageLink ?date ?amazonLink
+        WHERE {
+            ?sub dc:title "%s" .
+            ?sub dc:language ?lang .
+            ?sub mo:image ?imageLink .
+            ?sub dc:date ?date .
+            ?sub mo:amazon_asin ?amazonLink
+        }
+        """
+    % (album)) 
+    
+    sparql.setReturnFormat(JSON)
+    response = sparql.query().convert()
+    for result in response["results"]["bindings"]:
+        print(result)
+        lang = result['lang']['value']
+        imageLink = result['imageLink']['value']
+        date = result['date']['value']
+        amazonLink = result['amazonLink']['value']
+
+    return render_template("album.html", album=album, language=lang, imageLink=imageLink, date=date, amazonLink=amazonLink)
 
 @app.route("/song/<song>")
 def song(song):
@@ -28,25 +54,35 @@ def search(query):
     results = []
     options = []
 
+    sparqlx = SPARQLWrapper("http://localhost:5820/musico/query")
+    sparqlx.setQuery("""
+        SELECT ?name
+        WHERE {
+            ?sub rdf:type mus:Composer .
+            ?sub foaf:name ?name
+        }
+    """)
+    sparqlx.setReturnFormat(JSON)
+    responseX = sparqlx.query().convert()
+    for result in responseX["results"]["bindings"]:
+        options.append({"category": "artist", "name": result['name']['value']})
 
-    sparql = SPARQLWrapper("http://localhost:5820/hqaecua/query")
+    sparql = SPARQLWrapper("http://localhost:5820/musico/query")
     sparql.setQuery("""
         SELECT ?name
         WHERE {
-            ?sub rdf:type mus:Composer.
-            ?sub foaf:name ?name
+            ?sub rdf:type mus:Album .
+            ?sub dc:title ?name
         }
     """)
     sparql.setReturnFormat(JSON)
     response = sparql.query().convert()
     for result in response["results"]["bindings"]:
-        options.append(result['name']['value'].lower())
-
-    print(list(set(options)))
+        options.append({"category": "album", "name": result['name']['value']})
 
     for option in options:
-        if query in option:
-            result = {'category': 'artist', 'name': option}
+        if query in option['name'].lower():
+            result = {'category': option['category'], 'name': option['name']}
             results.append(result)
     return json.dumps(results)
 
