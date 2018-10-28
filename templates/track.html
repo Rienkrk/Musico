@@ -5,13 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{track}}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-    {{track}}
-    {{trackAlbums}}
-    {{tags}}
-    {{artist}}
-    {{date}}
-    {{length}}
+        <p>.</p>
+<hr class="">
+
+<div class="container target">
+    <div class="row">
+        <div class="col-sm-10">
+             <h1 class="">{{track}}</h1>
+        </div>
+
+        <div class="col-sm-2"><img class="img-circle img-responsive" src="{{imageLink}}">
+
+        </div>
+    </div>
+  <br>
+    <div class="row">
+        <div class="col-sm-3">
+            <!--left col-->
+            <ul class="list-group">
+                <li class="list-group-item text-muted" contenteditable="false">Over {{artist}}</li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Lengthe </strong></span>{{length}}</li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Lanceerdatum</strong></span>{{date}}</li>
+            </ul>
+           <div class="panel panel-default">
+             <div class="panel-heading">Tags
+                </div>
+
+                {% for tag in tags %}
+                <a href="https://musicbrainz.org/tag/{{tag}}" target="_blank"><span class="badge badge-primary">{{tag}}</span></a>
+                
+
+                {% endfor %}
+                
+            </div>
+          
+        </div>
+        <!--/col-3-->
+        <div class="col-sm-9" style="" contenteditable="false">
+            <div class="panel panel-default">
+                <div class="panel-heading">Artiest</div>
+                <div class="panel-body"> <a href="../artist/{{artist}}">{{artist}}</a>
+
+                </div>
+            </div>
+            <div class="panel panel-default target">
+                <div class="panel-heading" contenteditable="false">Komt voor in de volgende albums</div>
+                <div class="panel-body">
+                  <div class="row">
+                
+                {% for key, value in trackAlbums.items() %}
+                    <div class="col-md-4">
+                            <div class="thumbnail">
+                                <img alt="300x200" src="{{value}}">
+                                <div class="caption">
+                                    <h3>
+                                        <a href="../album/{{key}}">{{ key }}</a>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                {% endfor %}
+                     
+            </div>
+                 
+        </div>
+              
+    </div></div>
+
+
+            <div id="push"></div>
+        </div>
+        
+</div>
+        
 </body>
 </html>

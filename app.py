@@ -240,7 +240,7 @@ def track(track):
 		tags = []
 		for tag in trackData['tags']:
 			tags.append(tag['name'])
-	# 
+
 	return render_template("track.html", track=track, trackAlbums=trackAlbums, tags=tags, artist=artist, date=date, length=length)
 
 @app.route("/search/<query>", methods=['GET', 'POST'])
