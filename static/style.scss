@@ -61,10 +61,6 @@ a:hover {
   text-align: center;
 }
 
-body {
-  margin-top: 3% !important;
-}
-
 .search-bar {
   margin:auto !important;
   float: none !important;
@@ -141,10 +137,42 @@ body {
   font-size: 34px;
 }
 
-.vl-artist {
+.artist-vl {
   background: #8e44ad !important
 }
 
-.vl-track {
+.track-vl {
   background: #e74c3c !important;
+}
+
+.header {
+  width: 100%;
+  padding: 20px;
+
+  a {
+    color: white !important;
+    font-weight: bold;
+    font-size: 15px;
+  }
+}
+
+.album {
+  background: #e67e22;
+}
+
+.track {
+  background: #e74c3c;
+}
+
+.artist {
+  background: #8e44ad;
+}
+
+.h {
+  margin-bottom: 60px;
+}
+
+.r {
+  margin-top: 40px;
+  font-size: 18px;
 }

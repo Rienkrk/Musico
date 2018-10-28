@@ -4,6 +4,7 @@ from rdflib import Graph, RDF, Namespace, Literal, URIRef
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pprint as pp
 from random import shuffle
+import random
 import requests
 
 app = Flask(__name__)
@@ -12,7 +13,73 @@ app.secret_key = 'supersecret'
 
 @app.route("/")
 def index():
-	return render_template("index.html")
+
+	artists = []
+	tracks = []
+	albums = []
+
+	sparqlx = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqlx.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type cmno:Composer .
+			?sub foaf:name ?name
+		}
+	""")
+	sparqlx.setReturnFormat(JSON)
+	responseX = sparqlx.query().convert()
+	for result in responseX["results"]["bindings"]:
+		artists.append(result['name']['value'])
+
+	sparqlz = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqlz.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type mus:Artist .
+			?sub foaf:name ?name
+		}
+	""")
+	sparqlz.setReturnFormat(JSON)
+	responseZ = sparqlz.query().convert()
+	for result in responseZ["results"]["bindings"]:
+		artists.append(result['name']['value'])
+
+	sparql = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparql.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type mus:Album .
+			?sub dc:title ?name
+		}
+	""")
+	sparql.setReturnFormat(JSON)
+	response = sparql.query().convert()
+	for result in response["results"]["bindings"]:
+		albums.append(result['name']['value'])
+
+	sparqls = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqls.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type mus:Track .
+			?sub dc:title ?name
+		}
+	""")
+	sparqls.setReturnFormat(JSON)
+	responses = sparqls.query().convert()
+	for result in responses["results"]["bindings"]:
+		tracks.append(result['name']['value'])
+
+	track = random.choice(tracks)
+	artist = random.choice(artists)
+	album = random.choice(albums)
+
+	print(track)
+	print(artist)
+	print(album)
+
+
+	return render_template("index.html", track=track, artist=artist, album=album)
 
 @app.route("/artist/<artist>")
 def artist(artist):
@@ -265,7 +332,7 @@ def search(query):
 	sparqlz.setQuery("""
 		SELECT ?name
 		WHERE {
-			?sub rdf:type mo:MusicArtist .
+			?sub rdf:type mus:Artist .
 			?sub foaf:name ?name
 		}
 	""")

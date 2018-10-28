@@ -15,7 +15,7 @@
         <div class="center">
 
             <h2>Musico</h2>
-            <h4 class="top-buffer">Vind de beste artiesten van het moment!</h4>
+            <p class="r">Bekijk alle artiesten, albums en tracks van de klassieke muziek door de jaren heen.</p>
 
             <div class="row top-buffer-80">
                 <div class="col-md-6 search-bar">
@@ -37,9 +37,12 @@
 
         <div class="row top-buffer-80">
             <div class="center">
-                <div class="col-lg-4"><a class="vl artist-vl" href="{{ url_for('artist', artist='phone') }}">Artist</a></div>
-                <div class="col-lg-4"><a class="vl album-vl" href="{{ url_for('album', album='phone') }}">Album</a></div>
-                <div class="col-lg-4"><a class="vl track-vl" href="{{ url_for('track', track='phone') }}">Track</a></div>
+
+                <h4 class="h">Klik hier beneden om een aanbevolen artiest, album of track te zien</h4>
+
+                <div class="col-lg-4"><a class="vl artist-vl" href="{{ url_for('artist', artist=artist) }}">Artist</a></div>
+                <div class="col-lg-4"><a class="vl album-vl" href="{{ url_for('album', album=album) }}">Album</a></div>
+                <div class="col-lg-4"><a class="vl track-vl" href="{{ url_for('track', track=track) }}">Track</a></div>
             </div>
         </div>
         </div>
