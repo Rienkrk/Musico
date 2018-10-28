@@ -22,7 +22,7 @@ function myFunction(value) {
               for(x in response){
                 person = response[x]['name'].split('/').join('%2F');
                 person = encodeURI(person);
-                var html = "<li><a href=/"+response[x]['category']+"/" + person + ">"+response[x]['name']+"</a></li>"
+                var html = "<li class='result'><span class='category " + response[x]['category'] + "'>" + response[x]['category'] + "</span><a href=/"+response[x]['category']+"/" + person + ">"+ response[x]['name']+"</a></li>"
                 $("#results").prepend(html);
               }
 

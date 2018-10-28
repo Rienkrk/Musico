@@ -23,7 +23,8 @@ footer, header, hgroup, menu, nav, section, button {
 
 body {
   line-height: 1;
-  overflow: hidden; }
+  overflow: hidden;
+  background: #5bc0de; }
 
 ol, ul, li, ul {
   list-style: none; }
@@ -47,7 +48,7 @@ table {
   border-spacing: 0; }
 
 a {
-  color: black; }
+  color: #484848 !important; }
 
 a:hover {
   color: darkgrey; }
@@ -69,5 +70,59 @@ body {
 
 .top-buffer-80 {
   margin-top: 80px; }
+
+#results {
+  margin-top: 20px;
+  border-radius: 20px;
+  max-height: 400px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-width: 700px;
+  margin: 10px auto;
+  display: block; }
+
+#results::-webkit-scrollbar {
+  visibility: hidden; }
+
+.result {
+  display: flex;
+  padding: 15px;
+  margin: 6px;
+  background: white;
+  background: #5bc0de;
+  border-radius: 5px; }
+  .result a {
+    color: white !important;
+    font-weight: bold;
+    text-align: left !important; }
+
+.category {
+  background: #e67e22;
+  padding: 5px;
+  color: white;
+  margin-right: 10px;
+  border-radius: 3px;
+  text-transform: capitalize;
+  min-width: 60px !important;
+  max-width: 60px !important; }
+
+.artist {
+  background: #8e44ad !important; }
+
+.track {
+  background: #e74c3c !important; }
+
+.vl {
+  background: #e67e22;
+  border-radius: 10px;
+  color: white !important;
+  padding: 20px 30px;
+  font-size: 34px; }
+
+.artist-vl {
+  background: #8e44ad !important; }
+
+.track-vl {
+  background: #e74c3c !important; }
 
 /*# sourceMappingURL=style.css.map */

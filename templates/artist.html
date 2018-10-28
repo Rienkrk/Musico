@@ -4,11 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ artist }}</title>
+    <title>{{artist}}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
+        <p>.</p>
+<hr class="">
 
-    {{ artist }}
+<div class="container target">
+    <div class="row">
+        <div class="col-sm-10">
+             <h1 class="">{{artist}}</h1>
+        </div>
+    </div>
+  <br>
+    <div class="row">
+        <div class="col-sm-3">
+            <!--left col-->
+            <ul class="list-group">
+                <li class="list-group-item text-muted" contenteditable="false">Over {{artist}}</li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Taal</strong></span>{{country}}</li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Lanceer datum</strong></span>x</li>
+                    <li class="list-group-item text-right"><span class="pull-left"><strong class="">Real name</strong></span> Joseph
+                        Doe</li>
+              <li class="list-group-item text-right"><span class="pull-left"><strong class="">Role: </strong></span> Pet Sitter
+               
+                      </li>
+            </ul>
+           <div class="panel panel-default">
+             <div class="panel-heading">Tags
+                </div>
+
+                {% for tag in tags %}
+                <a href="https://musicbrainz.org/tag/{{tag}}" target="_blank"><span class="badge badge-primary">{{tag}}</span></a>
+                
+
+                {% endfor %}
+                
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Rating<i class="fa fa-link fa-1x"></i>
+
+                </div>
+                <span>{{rating}}/5</span>
+            </div>
+          
+            <ul class="list-group">
+                <li class="list-group-item text-muted">Externe links <i class="fa fa-dashboard fa-1x"></i>
+
+                </li>
+                
+
+                {% for key, value in links.items() %}
+            
+                <li class="list-group-item"><a href="{{value}}">{{key}}</a></li>
     
+
+                {% endfor %}
+            </ul>
+        </div>
+        <!--/col-3-->
+        <div class="col-sm-9" style="" contenteditable="false">
+            <div class="panel panel-default">
+                <div class="panel-heading">Beschrijving van {{artist}}</div>
+                <div class="panel-body"> {{desc}}
+
+                </div>
+            </div>
+            <div class="panel panel-default target">
+                <div class="panel-heading" contenteditable="false">Albums van</div>
+                <div class="panel-body">
+                  <div class="row">
+                
+                {% for key, value in artistAlbums.items() %}
+                    <div class="col-md-4">
+                            <div class="thumbnail">
+                                <img alt="300x200" src="{{value}}">
+                                <div class="caption">
+                                    <h3>
+                                        {{ key }}
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                {% endfor %}
+                     
+            </div>
+                 
+        </div>
+              
+    </div>
+           <div class="panel panel-default">
+                <div class="panel-heading">Nog wat info</div>
+                <div class="panel-body"> Schrijf hier nog iets leuks
+
+                </div>
+</div></div>
+
+
+            <div id="push"></div>
+        </div>
+        
+</div>
+        
 </body>
 </html>

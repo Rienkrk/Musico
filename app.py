@@ -2,6 +2,9 @@ from flask import Flask, render_template
 import json
 from rdflib import Graph, RDF, Namespace, Literal, URIRef
 from SPARQLWrapper import SPARQLWrapper, JSON
+import pprint as pp
+from random import shuffle
+import requests
 
 app = Flask(__name__)
 app.debug = True
@@ -9,83 +12,215 @@ app.secret_key = 'supersecret'
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+	return render_template("index.html")
 
 @app.route("/artist/<artist>")
 def artist(artist):
-   return render_template("artist.html", artist=artist) 
+
+	desc = "Geen beschrijving beschikbaar."
+	rating = '4'
+	country= 'Niet bekend'
+
+	sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+	sparql.setQuery(
+		"""
+		PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+		PREFIX mo: <http://purl.org/ontology/mo/>
+		SELECT ?brainzLink
+		WHERE {
+			?sub foaf:name "%s" .
+			?sub mo:musicbrainz ?brainzLink
+		}
+		"""
+	% (artist)) 
+	sparql.setReturnFormat(JSON)
+	response = sparql.query().convert()
+	for result in response["results"]["bindings"]:
+		brainzLink = result['brainzLink']['value']
+
+	sparqlt = SPARQLWrapper("http://dbpedia.org/sparql")
+	sparqlt.setQuery(
+		"""
+		PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+		PREFIX dbo: <http://dbpedia.org/ontology/>
+
+			SELECT ?description ?country WHERE {
+			?sub foaf:name "%s"@en .
+			?sub dbo:abstract ?description .
+			OPTIONAL { ?sub dbo:citizenship ?country } .
+			FILTER (LANG(?description)='nl')
+		} 
+		"""
+	% (artist)) 
+	sparqlt.setReturnFormat(JSON)
+	responset = sparqlt.query().convert()
+	for result in responset["results"]["bindings"]:
+		desc = result['description']['value']
+		if 'country' in result:
+			country = result['country']['value']
+
+	uid = brainzLink[30:]
+
+	response = requests.get("http://musicbrainz.org/ws/2/artist/"+uid+"?inc=releases+url-rels+tags+ratings&fmt=json")
+	if response.status_code == 200:
+		artistData = response.json()
+
+	rating = artistData['rating']['value']
+
+	links = {}
+	for x in artistData['relations']:
+		link = x['url']['resource']
+		if 'spotify' in link:
+			links['Spotify'] = link
+		if 'itunes' in link:
+			links['Itunes'] = link
+		if 'last.fm' in link:
+			links['Last FM'] = link
+		if 'bbc' in link:
+			links['BBC'] = link
+	tags = []
+	for tag in artistData['tags']:
+		tags.append(tag['name'])
+
+	artistAlbums = {}
+	for releases in artistData['releases']:
+		response = requests.get("http://coverartarchive.org/release/" + releases['id'])
+		if(response.status_code == 200):
+			releaseData = response.json()
+			artistAlbums[releases['title']] = releaseData['images'][0]['image']
+
+		if len(artistAlbums) == 3:
+			break
+	print(tags)
+	return render_template("artist.html", artist=artist, links=links, artistAlbums=artistAlbums, desc=desc, tags=tags, rating=rating, country=country) 
 
 @app.route("/album/<album>")
 def album(album):
 
-    album = album.replace("%2F", "/")
+	lang = "none"
+	imageLink = "none"
+	date = "none"
+	amazonLink = "none"
+	maker = "none"
+	contains = "none"
+	lent = "none"
+	musicLink = "none"
 
-    sparql = SPARQLWrapper("http://localhost:5820/musico/query")
-    sparql.setQuery(
-        """
-        SELECT ?lang ?imageLink ?date ?amazonLink
-        WHERE {
-            ?sub dc:title "%s" .
-            ?sub dc:language ?lang .
-            ?sub mo:image ?imageLink .
-            ?sub dc:date ?date .
-            ?sub mo:amazon_asin ?amazonLink
-        }
-        """
-    % (album)) 
-    
-    sparql.setReturnFormat(JSON)
-    response = sparql.query().convert()
-    for result in response["results"]["bindings"]:
-        print(result)
-        lang = result['lang']['value']
-        imageLink = result['imageLink']['value']
-        date = result['date']['value']
-        amazonLink = result['amazonLink']['value']
+	album = album.replace("%2F", "/")
 
-    return render_template("album.html", album=album, language=lang, imageLink=imageLink, date=date, amazonLink=amazonLink)
+	sparql = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparql.setQuery(
+		"""
+		SELECT ?lang ?imageLink ?date ?amazonLink ?maker ?contains ?len ?musicLink
+		WHERE {
+			?sub dc:title "%s" .
+			OPTIONAL { ?sub dc:language ?lang } .
+			OPTIONAL { ?sub mo:image ?imageLink } .
+			OPTIONAL { ?sub dc:date ?date } .
+			OPTIONAL { ?sub mo:amazon_asin ?amazonLink } .
+			OPTIONAL { ?sub foaf:maker ?test } . 
+			OPTIONAL { ?test foaf:name ?maker } . 
+			OPTIONAL { ?sub mus:contains ?contains } .
+			OPTIONAL { ?contains mo:length ?len } .
+			OPTIONAL { ?sub mo:musicbrainz ?musicLink }
+		}
+		"""
+	% (album)) 
+	
+	sparql.setReturnFormat(JSON)
+	response = sparql.query().convert()
+	for result in response["results"]["bindings"]:
+		pp.pprint(result)
+		if 'lang' in result:
+			lang = result['lang']['value']
+		if 'imageLink' in result:
+			imageLink = result['imageLink']['value']
+		if 'date' in result:
+			date = result['date']['value']
+		if 'amazonLink' in result:
+			amazonLink = result['amazonLink']['value']
+		if 'maker' in result:
+			maker = result['maker']['value']
+		if 'contains' in result:
+			contains = result['contains']['value']
+		if 'len' in result:
+			lent = result['len']['value']
+		if 'musicLink' in result:
+			musicLink = result['musicLink']['value']
 
-@app.route("/song/<song>")
-def song(song):
-    return render_template("song.html")
+	return render_template("album.html", album=album, language=lang, imageLink=imageLink, date=date, amazonLink=amazonLink, maker=maker)
+
+	
+
+@app.route("/track/<track>")
+def track(track):
+	return render_template("track.html")
 
 @app.route("/search/<query>", methods=['GET', 'POST'])
 def search(query):
-    results = []
-    options = []
+	results = []
+	options = []
 
-    sparqlx = SPARQLWrapper("http://localhost:5820/musico/query")
-    sparqlx.setQuery("""
-        SELECT ?name
-        WHERE {
-            ?sub rdf:type mus:Composer .
-            ?sub foaf:name ?name
-        }
-    """)
-    sparqlx.setReturnFormat(JSON)
-    responseX = sparqlx.query().convert()
-    for result in responseX["results"]["bindings"]:
-        options.append({"category": "artist", "name": result['name']['value']})
+	sparqlx = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqlx.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type cmno:Composer .
+			?sub foaf:name ?name
+		}
+	""")
+	sparqlx.setReturnFormat(JSON)
+	responseX = sparqlx.query().convert()
+	for result in responseX["results"]["bindings"]:
+		options.append({"category": "artist", "name": result['name']['value']})
 
-    sparql = SPARQLWrapper("http://localhost:5820/musico/query")
-    sparql.setQuery("""
-        SELECT ?name
-        WHERE {
-            ?sub rdf:type mus:Album .
-            ?sub dc:title ?name
-        }
-    """)
-    sparql.setReturnFormat(JSON)
-    response = sparql.query().convert()
-    for result in response["results"]["bindings"]:
-        options.append({"category": "album", "name": result['name']['value']})
+	sparqlz = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqlz.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type mo:MusicArtist .
+			?sub foaf:name ?name
+		}
+	""")
+	sparqlz.setReturnFormat(JSON)
+	responseZ = sparqlz.query().convert()
+	for result in responseZ["results"]["bindings"]:
+		options.append({"category": "artist", "name": result['name']['value']})
 
-    for option in options:
-        if query in option['name'].lower():
-            result = {'category': option['category'], 'name': option['name']}
-            results.append(result)
-    return json.dumps(results)
+	sparql = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparql.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type mus:Album .
+			?sub dc:title ?name
+		}
+	""")
+	sparql.setReturnFormat(JSON)
+	response = sparql.query().convert()
+	for result in response["results"]["bindings"]:
+		options.append({"category": "album", "name": result['name']['value']})
+
+	sparqls = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqls.setQuery("""
+		SELECT ?name
+		WHERE {
+			?sub rdf:type mus:Track .
+			?sub dc:title ?name
+		}
+	""")
+	sparqls.setReturnFormat(JSON)
+	responses = sparqls.query().convert()
+	for result in responses["results"]["bindings"]:
+		options.append({"category": "track", "name": result['name']['value']})
+
+	for option in options:
+		if query in option['name'].lower():
+			result = {'category': option['category'], 'name': option['name']}
+			results.append(result)
+
+	shuffle(results)
+	return json.dumps(results[:50])
 
 # Run app
 if __name__ == "__main__":
-    app.run()
+	app.run()
