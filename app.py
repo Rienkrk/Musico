@@ -19,7 +19,11 @@ def artist(artist):
 
 	desc = "Geen beschrijving beschikbaar."
 	rating = '4'
-	country= 'Niet bekend'
+	national= 'Niet bekend'
+	died = 'Niet bekend'
+	born = 'Niet bekend'
+	function = 'Niet bekend'
+	imageLink = ""
 
 	sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
 	sparql.setQuery(
@@ -43,11 +47,18 @@ def artist(artist):
 		"""
 		PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 		PREFIX dbo: <http://dbpedia.org/ontology/>
+		PREFIX dct: <http://purl.org/dc/terms/>
 
-			SELECT ?description ?country WHERE {
+		SELECT ?description ?national ?died ?born ?imageLink ?function WHERE {
 			?sub foaf:name "%s"@en .
-			?sub dbo:abstract ?description .
-			OPTIONAL { ?sub dbo:citizenship ?country } .
+			OPTIONAL { ?sub dbo:birthPlace ?city } .
+			OPTIONAL { ?city dbo:country ?country } .
+			OPTIONAL { ?country dbo:demonym ?national } .
+			OPTIONAL { ?sub dbo:deathDate ?died } .
+			OPTIONAL { ?sub dbo:birthDate ?born } .
+			OPTIONAL { ?sub dbo:abstract ?description } .
+			OPTIONAL { ?sub dbo:thumbnail ?imageLink } . 
+			OPTIONAL { ?sub dct:description ?function } .
 			FILTER (LANG(?description)='nl')
 		} 
 		"""
@@ -55,9 +66,18 @@ def artist(artist):
 	sparqlt.setReturnFormat(JSON)
 	responset = sparqlt.query().convert()
 	for result in responset["results"]["bindings"]:
-		desc = result['description']['value']
-		if 'country' in result:
-			country = result['country']['value']
+		if 'description' in result:
+			desc = result['description']['value']
+		if 'national' in result:
+			national = result['national']['value']
+		if 'died' in result:
+			died = result['died']['value']
+		if 'born' in result:
+			born = result['born']['value']
+		if 'imageLink' in result:
+			imageLink = result['imageLink']['value']
+		if 'function' in result:
+			function = result['function']['value']
 
 	uid = brainzLink[30:]
 
@@ -92,7 +112,7 @@ def artist(artist):
 		if len(artistAlbums) == 3:
 			break
 	print(tags)
-	return render_template("artist.html", artist=artist, links=links, artistAlbums=artistAlbums, desc=desc, tags=tags, rating=rating, country=country) 
+	return render_template("artist.html", artist=artist, links=links, artistAlbums=artistAlbums, desc=desc, tags=tags, rating=rating, national=national, died=died, born=born, imageLink=imageLink, function=function) 
 
 @app.route("/album/<album>")
 def album(album):
@@ -111,10 +131,11 @@ def album(album):
 	sparql = SPARQLWrapper("http://localhost:5820/musico/query")
 	sparql.setQuery(
 		"""
-		SELECT ?lang ?imageLink ?date ?amazonLink ?maker ?contains ?len ?musicLink
+		SELECT ?sub ?lang ?imageLink ?date ?amazonLink ?maker ?contains ?len ?musicLink
 		WHERE {
 			?sub dc:title "%s" .
-			OPTIONAL { ?sub dc:language ?lang } .
+			OPTIONAL { ?sub dc:language ?langLink } .
+			OPTIONAL { <?langLink> rdfs:label ?lang } .
 			OPTIONAL { ?sub mo:image ?imageLink } .
 			OPTIONAL { ?sub dc:date ?date } .
 			OPTIONAL { ?sub mo:amazon_asin ?amazonLink } .
@@ -130,7 +151,9 @@ def album(album):
 	sparql.setReturnFormat(JSON)
 	response = sparql.query().convert()
 	for result in response["results"]["bindings"]:
-		pp.pprint(result)
+
+		sub = result['sub']['value']
+
 		if 'lang' in result:
 			lang = result['lang']['value']
 		if 'imageLink' in result:
@@ -148,13 +171,77 @@ def album(album):
 		if 'musicLink' in result:
 			musicLink = result['musicLink']['value']
 
-	return render_template("album.html", album=album, language=lang, imageLink=imageLink, date=date, amazonLink=amazonLink, maker=maker)
 
-	
+	uid = sub[46:]
+	print(uid)
+
+	response = requests.get("http://musicbrainz.org/ws/2/release/"+uid+"?inc=artist-credits+discids+tags+recordings&fmt=json")
+	print(response.status_code)
+	if response.status_code == 200:
+		albumData = response.json()
+
+		tags = []
+		for x in albumData['tags']:
+			tags.append(x['name'])
+
+		artists = []
+		for x in albumData['artist-credit']:
+			artists.append(x['artist']['name'])
+
+		amount = albumData['media'][0]['track-count']
+
+		tracks = []
+		for x in albumData['media'][0]['tracks']:
+			tracks.append(x['title'])
+
+	return render_template("album.html", album=album, language=lang, imageLink=imageLink, date=date, amazonLink=amazonLink, maker=maker, tracks=tracks, artists=artists, tags=tags, amount=amount)
 
 @app.route("/track/<track>")
 def track(track):
-	return render_template("track.html")
+
+	length = "Niet bekend"
+
+	sparqlt = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqlt.setQuery(
+		"""
+		SELECT ?length ?musicbrainzLink
+		WHERE {
+			?sub dc:title "%s" .
+			OPTIONAL { ?sub mo:length ?length } .
+  			OPTIONAL { ?sub mo:musicbrainz ?musicbrainzLink } .
+		} 
+		"""
+	% (track)) 
+
+	sparqlt.setReturnFormat(JSON)
+	responset = sparqlt.query().convert()
+	for result in responset["results"]["bindings"]:
+		if 'length' in result:
+			length = result['length']['value']
+		if 'musicbrainzLink' in result:
+			musicbrainzLink = result['musicbrainzLink']['value']
+
+	uid = musicbrainzLink[29:]
+	print(uid)
+	response = requests.get("http://musicbrainz.org/ws/2/recording/"+uid+"?inc=artist-credits+releases+tags&fmt=json")
+	if response.status_code == 200:
+		trackData = response.json()
+
+		artist = trackData['artist-credit'][0]['name']
+		date = trackData['releases'][0]['date']
+
+		trackAlbums = {}
+		for releases in trackData['releases']:
+			response = requests.get("http://coverartarchive.org/release/" + releases['id'])
+			if(response.status_code == 200):
+				releaseData = response.json()
+				trackAlbums[releases['title']] = releaseData['images'][0]['image']
+
+		tags = []
+		for tag in trackData['tags']:
+			tags.append(tag['name'])
+	# 
+	return render_template("track.html", track=track, trackAlbums=trackAlbums, tags=tags, artist=artist, date=date, length=length)
 
 @app.route("/search/<query>", methods=['GET', 'POST'])
 def search(query):

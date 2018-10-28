@@ -16,7 +16,6 @@
     <div class="row">
         <div class="col-sm-10">
              <h1 class="">{{album}}</h1>
-         
         </div>
       <div class="col-sm-2"><img class="img-circle img-responsive" src="{{imageLink}}">
 
@@ -26,107 +25,77 @@
     <div class="row">
         <div class="col-sm-3">
             <!--left col-->
-            <ul class="list-group">
-                <li class="list-group-item text-muted" contenteditable="false">Over dit album</li>
-                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Taal</strong></span> {{ language }}</li>
-                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Lanceer datum</strong></span>{{ date }}</li>
-                    <li class="list-group-item text-right"><span class="pull-left"><strong class="">Real name</strong></span> Joseph
-                        Doe</li>
-              <li class="list-group-item text-right"><span class="pull-left"><strong class="">Role: </strong></span> Pet Sitter
-               
-                      </li>
-            </ul>
-           <div class="panel panel-default">
-             <div class="panel-heading">Artiest
 
-                </div>
-                <div class="panel-body"><i class="fa fa-check-square"></i> <a href="../artist/{{maker}}" class="">{{maker}}</a>
-
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">Amazon link<i class="fa fa-link fa-1x"></i>
-
-                </div>
-                <div class="panel-body"><a href="{{amazonLink}}" class="">Amazon.com</a>
-
-                </div>
-            </div>
           
-            <ul class="list-group">
-                <li class="list-group-item text-muted">Activity <i class="fa fa-dashboard fa-1x"></i>
+            <ul class="list-group panel panel-default">
+                    <div class="panel-heading">Tracks in dit album<i class="fa fa-link fa-1x"></i>
 
-                </li>
-                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Shares</strong></span> 125</li>
-                <li class="list-group-item text-right"><span class="pull-left"><strong class="">Likes</strong></span> 13</li>
-                    <li class="list-group-item text-right"><span class="pull-left"><strong class="">Posts</strong></span> 37</li>
-                        <li class="list-group-item text-right"><span class="pull-left"><strong class="">Followers</strong></span> 78</li>
+                    </div>
+                    {% for track in tracks%}
+                        <li class="list-group-item"><a href="../track/{{track}}">{{ track }}</a></li>
+                    {% endfor %}
             </ul>
         </div>
         <!--/col-3-->
         <div class="col-sm-9" style="" contenteditable="false">
+                <ul class="list-group">
+                        <li class="list-group-item text-muted" contenteditable="false">Over dit album</li>
+                        <li class="list-group-item text-right"><span class="pull-left"><strong class="">Taal</strong></span> {{ language }}</li>
+                        <li class="list-group-item text-right"><span class="pull-left"><strong class="">Lanceer datum</strong></span>{{ date }}</li>
+                      <li class="list-group-item text-right"><span class="pull-left"><strong class="">Aantal tracks</strong></span> {{ amount }}
+                       
+                              </li>
+                    </ul>
+                   <div class="panel panel-default">
+                     <div class="panel-heading">Hoofd Artiest
+        
+                        </div>
+                        <div class="panel-body"><i class="fa fa-check-square"></i> <a href="../artist/{{maker}}" class="">{{maker}}</a>
+        
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Amazon link<i class="fa fa-link fa-1x"></i>
+        
+                        </div>
+                        <div class="panel-body"><a href="{{amazonLink}}" class="">Amazon.com</a>
+        
+                        </div>
+                    </div>
             <div class="panel panel-default">
-                <div class="panel-heading">Beschrijving van {{album}}</div>
-                <div class="panel-body"> Beschrijving.
+                <div class="panel-heading">Tags van {{album}}</div>
+                <div class="panel-body"> {% for tag in tags%}
+                        <li class="list-group-item">{{ tag }}</li>
+                    {% endfor %}
 
                 </div>
             </div>
             <div class="panel panel-default target">
-                <div class="panel-heading" contenteditable="false">Andere albums van {{maker}}</div>
+                <div class="panel-heading" contenteditable="false">Gemaakt door artiesten</div>
                 <div class="panel-body">
                   <div class="row">
+                {%for artist in artists %}
 				<div class="col-md-4">
 					<div class="thumbnail">
-						<img alt="300x200" src="https://via.placeholder.com/300.png/09f/fff">
 						<div class="caption">
+
+                            
 							<h3>
-								Album 1
+								<a href="../artist/{{artist}}">{{artist}}</a>
 							</h3>
-							<p>
-								Titel album 1
-							</p>
+							
 						</div>
 					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="thumbnail">
-						<img alt="300x200" src="https://via.placeholder.com/300.png/09f/fff">
-						<div class="caption">
-                            <h3>
-                                Album 2
-                            </h3>
-                            <p>
-                                Titel album 2
-                            </p>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="thumbnail">
-						<img alt="300x200" src="https://via.placeholder.com/300.png/09f/fff">
-						<div class="caption">
-                            <h3>
-                                Album 3
-                            </h3>
-                            <p>
-                                Titel album 3s
-                            </p>
-                    </div>
                 </div>
-                 
-            </div>
+                {% endfor %}
+
                      
             </div>
                  
         </div>
               
     </div>
-           <div class="panel panel-default">
-                <div class="panel-heading">Nog wat info</div>
-                <div class="panel-body"> Schrijf hier nog iets leuks
-
-                </div>
-</div></div>
+    </div>
 
 
             <div id="push"></div>
