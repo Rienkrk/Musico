@@ -22,7 +22,7 @@ def index():
 	sparqlx.setQuery("""
 		SELECT ?name
 		WHERE {
-			?sub rdf:type cmno:Composer .
+			?sub rdf:type mus:Composer .
 			?sub foaf:name ?name
 		}
 	""")
@@ -91,13 +91,14 @@ def artist(artist):
 	born = 'Niet bekend'
 	function = 'Niet bekend'
 	imageLink = ""
+	influencer = 'Niet bekend'
 
 	sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
 	sparql.setQuery(
 		"""
 		PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 		PREFIX mo: <http://purl.org/ontology/mo/>
-		SELECT ?brainzLink
+		SELECT ?brainzLink 
 		WHERE {
 			?sub foaf:name "%s" .
 			?sub mo:musicbrainz ?brainzLink
@@ -109,6 +110,7 @@ def artist(artist):
 	for result in response["results"]["bindings"]:
 		brainzLink = result['brainzLink']['value']
 
+    
 	sparqlt = SPARQLWrapper("http://dbpedia.org/sparql")
 	sparqlt.setQuery(
 		"""
@@ -146,6 +148,29 @@ def artist(artist):
 		if 'function' in result:
 			function = result['function']['value']
 
+    # Stijns poging												
+
+	sparqlq = SPARQLWrapper("http://localhost:5820/musico/query")
+	sparqlq.setQuery(
+		"""
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX mus: <http://www.musico.org/musico/>
+
+		select ?influencer where {
+		?sub foaf:name "%s".
+		optional {?sub mus:influencedBy ?inf.
+		?inf foaf:name ?influencer.}
+		}
+		"""
+	% (artist))
+	sparqlq.setReturnFormat(JSON)
+	responseq = sparqlq.query().convert()
+	for result in responseq["results"]["bindings"]:
+		if 'influencer' in result:
+			influencer = result['influencer']['value']
+
+
+
 	uid = brainzLink[30:]
 
 	response = requests.get("http://musicbrainz.org/ws/2/artist/"+uid+"?inc=releases+url-rels+tags+ratings&fmt=json")
@@ -178,8 +203,7 @@ def artist(artist):
 
 		if len(artistAlbums) == 3:
 			break
-	print(tags)
-	return render_template("artist.html", artist=artist, links=links, artistAlbums=artistAlbums, desc=desc, tags=tags, rating=rating, national=national, died=died, born=born, imageLink=imageLink, function=function) 
+	return render_template("artist.html", artist=artist, links=links, influencer=influencer, artistAlbums=artistAlbums, desc=desc, tags=tags, rating=rating, national=national, died=died, born=born, imageLink=imageLink, function=function) 
 
 @app.route("/album/<album>")
 def album(album):
@@ -240,10 +264,8 @@ def album(album):
 
 
 	uid = sub[46:]
-	print(uid)
 
 	response = requests.get("http://musicbrainz.org/ws/2/release/"+uid+"?inc=artist-credits+discids+tags+recordings&fmt=json")
-	print(response.status_code)
 	if response.status_code == 200:
 		albumData = response.json()
 
@@ -284,7 +306,7 @@ def track(track):
 	responset = sparqlt.query().convert()
 	for result in responset["results"]["bindings"]:
 		if 'length' in result:
-			length = result['length']['value']
+			length = int(result['length']['value'])/1000/60
 		if 'musicbrainzLink' in result:
 			musicbrainzLink = result['musicbrainzLink']['value']
 
@@ -308,7 +330,7 @@ def track(track):
 		for tag in trackData['tags']:
 			tags.append(tag['name'])
 
-	return render_template("track.html", track=track, trackAlbums=trackAlbums, tags=tags, artist=artist, date=date, length=length)
+	return render_template("track.html", track=track, trackAlbums=trackAlbums, tags=tags, artist=artist, date=date, length=str(length)[:4])
 
 @app.route("/search/<query>", methods=['GET', 'POST'])
 def search(query):
@@ -319,7 +341,7 @@ def search(query):
 	sparqlx.setQuery("""
 		SELECT ?name
 		WHERE {
-			?sub rdf:type cmno:Composer .
+			?sub rdf:type mus:Composer .
 			?sub foaf:name ?name
 		}
 	""")
