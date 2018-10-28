@@ -38,15 +38,18 @@
         <div class="row top-buffer-80">
             <div class="center">
 
-                <h4 class="h">Klik hier beneden om een aanbevolen artiest, album of track te zien</h4>
-
+                <h4 class="h">Klik hier beneden om een willekeurige artiest, album of track te zien</h4>
+            </div>
+        </div>
+        <div class="row top-buffer-80">
+            <div class="center">
                 <div class="col-lg-4"><a class="vl artist-vl" href="{{ url_for('artist', artist=artist) }}">Artist</a></div>
                 <div class="col-lg-4"><a class="vl album-vl" href="{{ url_for('album', album=album) }}">Album</a></div>
                 <div class="col-lg-4"><a class="vl track-vl" href="{{ url_for('track', track=track) }}">Track</a></div>
             </div>
         </div>
         </div>
-    </div>
+    
 
 </body>
 
