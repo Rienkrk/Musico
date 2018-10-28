@@ -8,16 +8,24 @@ How to start the application:
 
 (Standard)
 rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns# 
+
 rdfs=http://www.w3.org/2000/01/rdf-schema# 
+
 xsd=http://www.w3.org/2001/XMLSchema# 
+
 owl=http://www.w3.org/2002/07/owl# 
+
 stardog=tag:stardog:api: 
 
 (To be added)
 mo=http://purl.org/ontology/mo/ 
+
 dc=http://purl.org/dc/elements/1.1/ 
+
 mus=http://www.musico.org/musico/ 
+
 foaf=http://xmlns.com/foaf/0.1/ 
+
 cmno=http://purl.org/ontology/classicalmusicnav# 
 
 4. Add the file 'musico ontology v4.ttl' to this database
